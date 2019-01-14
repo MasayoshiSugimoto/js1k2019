@@ -1,62 +1,61 @@
 //a=vectorAdd
+//b=randomComponent()
 //c=canvas.getContext('2d')
 //d=document
-//z=document.createElement('canvas')
+//e=center of the triangle
+//g=randomRGB()
+//m=Math
+//r=requestAnimationFrame
+//t=tmp
 //v=vector constructor
+//z=document.createElement('canvas')
 
 d=document
+r=requestAnimationFrame
+m=Math
 z=d.createElement('canvas')
 c=z.getContext('2d')
 d.body.appendChild(z)
 v=(x,y)=>({x:x,y:y})
 a=(v1,v2)=>v(v1.x+v2.x,v1.y+v2.y)
-rotationMatrix=angle => {
-	let cosine=Math.cos(angle)	
-	let sinus=Math.sin(angle)
+
+rotationMatrix=angle=>{
+	cosine=m.cos(angle)	
+	sinus=m.sin(angle)
 	return [
 		[cosine,-sinus],
 		[sinus,cosine]
 	]
 }
 
-matrixMultiply=(m,w)=>{
-	return v(
+matrixMultiply=(m,w)=>
+	v(
 		(m[0][0]*w.x)+(m[0][1]*w.y),
 		(m[1][0]*w.x)+(m[1][1]*w.y)
 	)
-}
 
-equilateralTriangle=(center,side,rotation)=>{
-	dv=v(0,side)
-	return [
-		a(center,matrixMultiply(rotationMatrix(rotation),v(0,-side))),
-		a(center,matrixMultiply(rotationMatrix(rotation+(2*Math.PI/6)),dv)),
-		a(center,matrixMultiply(rotationMatrix(rotation-(2*Math.PI/6)),dv))
-	]
-}
+b=()=>m.floor(m.random()*256)
 
-drawTriangle=(x,y,side,rotation)=>{
-	triangle=equilateralTriangle(v(x,y),side,rotation)
-	c.fillStyle=randomRGB()
-	c.beginPath()
-	c.moveTo(triangle[0].x,triangle[0].y)
-	c.lineTo(triangle[1].x,triangle[1].y)
-	c.lineTo(triangle[2].x,triangle[2].y)
-	c.fill()
-}
-
-randomComponent=()=>Math.floor(Math.random()*256)
-
-randomRGB=()=>{
-	return `rgb(${randomComponent()},${randomComponent()},${randomComponent()})`
-}
+g=()=>`rgb(${b()},${b()},${b()})`
 
 rot=0
 draw=()=>{
 	rot+=0.01
-	drawTriangle(100,100,50,rot)
-	requestAnimationFrame(draw)
+	e=v(100,100)
+	t=v(0,50)
+	t=[
+		a(e,matrixMultiply(rotationMatrix(rot),v(0,-50))),
+		a(e,matrixMultiply(rotationMatrix(rot+(m.PI/3)),t)),
+		a(e,matrixMultiply(rotationMatrix(rot-(m.PI/3)),t))
+	]
+	c.fillStyle=g()
+	c.beginPath()
+	c.moveTo(t[0].x,t[0].y)
+	c.lineTo(t[1].x,t[1].y)
+	c.lineTo(t[2].x,t[2].y)
+	c.fill()
+	r(draw)
 }
 
-requestAnimationFrame(draw)
+r(draw)
 
