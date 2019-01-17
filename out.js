@@ -1,14 +1,3 @@
-//a=vectorAdd
-//b=randomComponent()
-//c=canvas.getContext('2d')
-//d=document
-//e=center of the triangle
-//g=randomRGB()
-//m=Math
-//r=requestAnimationFrame
-//t=tmp
-//v=vector constructor
-//z=document.createElement('canvas')
 
 d=document
 r=requestAnimationFrame
@@ -34,8 +23,6 @@ matrixMultiply=(m,w)=>
 		(m[1][0]*w.x)+(m[1][1]*w.y)
 	)
 
-//c=center
-//r=rotation
 equilateralTriangle=(c,side,r)=>{
 	let dv=v(0,side)
 	return [
@@ -50,17 +37,6 @@ b=()=>m.floor(m.random()*256)
 g=()=>`rgb(${b()},${b()},${b()})`
 
 rot=0
-//draw=()=>{
-//	rot+=0.01
-//	t=equilateralTriangle(v(100,100),50,rot)
-//	c.fillStyle=g()
-//	c.beginPath()
-//	c.moveTo(t[0].x,t[0].y)
-//	c.lineTo(t[1].x,t[1].y)
-//	c.lineTo(t[2].x,t[2].y)
-//	c.fill()
-//	r(draw)
-//}
 
 drawTriangle=triangle=>{
 	let triangleAsArray = equilateralTriangle(triangle.center,triangle.size,triangle.rotation)
@@ -80,7 +56,7 @@ draw=()=>{
 		center:v(100,100),
 		color:g(),
 		size:size,
-		speed:matrixMultiply(rotationMatrix(Math.random()*2*Math.PI),v(0,size*size)),
+		speed:matrixMultiply(rotationMatrix(Math.random()*2*Math.PI),v(0,size/10)),
 		rotation:0
 	}
 	c.fillStyle="black"
