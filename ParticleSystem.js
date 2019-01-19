@@ -29,11 +29,12 @@ function multiply(vector, scalar) {
 	return v(vector.x*scalar, vector.y*scalar)
 }
 
-function createParticle(position) {
+function createParticle(position, radius) {
 	return {
 		oldPosition: position,
 		position: position,
 		acceleration: v(0,0),
+		radius: radius
 	}
 }
 
@@ -71,11 +72,11 @@ function satisfyConstraints(particles) {
 			if (p1 === p2) return
 			const delta = substract(p2.position, p1.position)
 			const deltaLength = length(delta)
-			if (deltaLength > 0.001 && deltaLength < REST_LENGTH) {
-				const diff = (REST_LENGTH - deltaLength) / deltaLength
+			if (deltaLength > 0.001 && deltaLength < (p1.radius+p2.radius)) {
+				const diff = ((p1.radius+p2.radius) - deltaLength) / deltaLength
 				const dx = multiply(delta, 0.5*diff)
-				p1.position = substract(p1.position, dx)
-				p2.position = add(p2.position, dx)
+				p1.position = substract(p1.position, multiply(delta, diff*(p2.radius/(p2.radius+p1.radius))))
+				p2.position = add(p2.position, multiply(delta, diff*(p1.radius/(p2.radius+p1.radius))))
 			}
 		})
 
@@ -97,21 +98,22 @@ function draw(particles) {
 	})
 }
 
-function update(deltaTimeSecond, particles) {
+function update(deltaTimeSecond) {
 	applyForces(particles)
 	verlet(particles, deltaTimeSecond/1000)
 	satisfyConstraints(particles)
 	c.clearRect(0,0,10000,10000)
 	draw(particles)
 	bomb = undefined
+	particles = particles.filter(x => x.radius !== 2)
 }
 
-const particles = []
+particles = []
 for (let i = 0; i < 1000; i++) {
 	particles[i] = createParticle(v(
-		Math.random()*10,
-		Math.random()*10
-	))
+		Math.random()*b.clientWidth/PIXEL_PER_METER,
+		Math.random()*b.clientHeight/PIXEL_PER_METER
+	), 0.2)
 }
 window.c.fillStyle="black"
 
@@ -119,6 +121,7 @@ let bomb = undefined
 window.b.addEventListener("click", e => {
 	bomb = toGameSpace(v(e.clientX, e.clientY))
 	console.log(`bombPosition = {x:${bomb.x}, y:${bomb.y})`)
+	particles.push(createParticle(bomb, 2))
 })
 
 setInterval(() => update(1000/60, particles), 1000/60)
