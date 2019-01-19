@@ -1,7 +1,7 @@
 v=(x,y)=>({x:x,y:y})
 const G=10
 const PIXEL_PER_METER=50
-const REST_LENGTH=1
+const REST_LENGTH=0.4
 
 function substract(v1, v2) {
 	return v(
@@ -21,6 +21,10 @@ function length(v1) {
 	return Math.sqrt(v1.x*v1.x+v1.y*v1.y)
 }
 
+function clamp(min, value, max) {
+	return Math.min(max, Math.max(value, min))
+}
+
 function multiply(vector, scalar) {
 	return v(vector.x*scalar, vector.y*scalar)
 }
@@ -37,9 +41,13 @@ function toScreen(x) {
 	return x*PIXEL_PER_METER
 }
 
+function toGameSpace(v1) {
+	return v(v1.x/PIXEL_PER_METER, v1.y/PIXEL_PER_METER)
+}
+
 function applyForces(particles) {
 	particles.forEach(particle => {
-		particle.acceleration.y = G
+		particle.acceleration = v(0,G)
 	})
 }
 
@@ -70,6 +78,9 @@ function satisfyConstraints(particles) {
 				p2.position = add(p2.position, dx)
 			}
 		})
+
+		p1.position.x = clamp(0, p1.position.x, b.clientWidth/PIXEL_PER_METER)
+		p1.position.y = clamp(0, p1.position.y, b.clientHeight/PIXEL_PER_METER)
 	})
 }
 
@@ -87,20 +98,27 @@ function draw(particles) {
 }
 
 function update(deltaTimeSecond, particles) {
-	//applyForces(particles)
+	applyForces(particles)
 	verlet(particles, deltaTimeSecond/1000)
 	satisfyConstraints(particles)
 	c.clearRect(0,0,10000,10000)
 	draw(particles)
+	bomb = undefined
 }
 
 const particles = []
-for (let i = 0; i < 100; i++) {
+for (let i = 0; i < 1000; i++) {
 	particles[i] = createParticle(v(
 		Math.random()*10,
 		Math.random()*10
 	))
 }
 window.c.fillStyle="black"
+
+let bomb = undefined
+window.b.addEventListener("click", e => {
+	bomb = toGameSpace(v(e.clientX, e.clientY))
+	console.log(`bombPosition = {x:${bomb.x}, y:${bomb.y})`)
+})
 
 setInterval(() => update(1000/60, particles), 1000/60)
