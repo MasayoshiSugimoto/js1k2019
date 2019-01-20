@@ -1,10 +1,9 @@
 #!/bin/bash
 
-readonly outputFile=index.html
-cat $outputFile | sed '
+cat js1k.html | sed '
 	/<!\[CDATA\[demo\]\]>/ {
 		r ParticleSystem.js
 		d
 	}
-' > $outputFile
+' > index.html
 echo "File size: $(stat -f'%-z' ParticleSystem.js)"
