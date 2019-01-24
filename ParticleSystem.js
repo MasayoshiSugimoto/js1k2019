@@ -1,127 +1,92 @@
+//v = Vector constructor
 v=(x,y)=>({x:x,y:y})
-const G=10
-const PIXEL_PER_METER=50
-const REST_LENGTH=0.4
+M=Math
+G=10
+//PIXEL_PER_METER
+P=50
 
-function substract(v1, v2) {
-	return v(
-		v1.x-v2.x,
-		v1.y-v2.y
-	)
-}
+//S: substract
+S=(v1,v2)=>v(v1.x-v2.x,v1.y-v2.y)
+add=(v1,v2)=>v(v1.x+v2.x,v1.y+v2.y)
+//L: length
+L=v1=>M.sqrt(v1.x*v1.x+v1.y*v1.y)
+//C: clamp
+C=(min,value,max)=>M.min(max,M.max(value,min))
+//X: multiply
+X=(vector,scalar)=>v(vector.x*scalar,vector.y*scalar)
 
-function add(v1, v2) {
-	return v(
-		v1.x+v2.x,
-		v1.y+v2.y
-	)
-}
+//p: position
+//r: radius
+//a: acceleration
+//MP: makeParticle
+MP=(p,r)=>({oldPosition:p,p:p,a:v(0,0),radius:r})
+CW=()=>b.clientWidth
+CH=()=>b.clientHeight
 
-function length(v1) {
-	return Math.sqrt(v1.x*v1.x+v1.y*v1.y)
-}
-
-function clamp(min, value, max) {
-	return Math.min(max, Math.max(value, min))
-}
-
-function multiply(vector, scalar) {
-	return v(vector.x*scalar, vector.y*scalar)
-}
-
-function createParticle(position, radius) {
-	return {
-		oldPosition: position,
-		position: position,
-		acceleration: v(0,0),
-		radius: radius
-	}
-}
-
-function toScreen(x) {
-	return x*PIXEL_PER_METER
-}
-
-function toGameSpace(v1) {
-	return v(v1.x/PIXEL_PER_METER, v1.y/PIXEL_PER_METER)
-}
-
-function applyForces(particles) {
-	particles.forEach(particle => {
-		particle.acceleration = v(0,G)
-	})
-}
-
-function verlet(particles, deltaTimeSecond) {
-	particles.forEach(particle => {
-		const x = particle.position.x
-			- particle.oldPosition.x
-			+ particle.acceleration.x*deltaTimeSecond*deltaTimeSecond
-		const y = particle.position.y
-			- particle.oldPosition.y
-			+ particle.acceleration.y*deltaTimeSecond*deltaTimeSecond
-		const newPosition = v(particle.position.x+x, particle.position.y+y)
-		particle.oldPosition = particle.position
-		particle.position = newPosition
-	})
-}
-
-function satisfyConstraints(particles) {
-	particles.forEach(p1 => {
-		particles.forEach(p2 => {
-			if (p1 === p2) return
-			const delta = substract(p2.position, p1.position)
-			const deltaLength = length(delta)
-			if (deltaLength > 0.001 && deltaLength < (p1.radius+p2.radius)) {
-				const diff = ((p1.radius+p2.radius) - deltaLength) / deltaLength
-				const dx = multiply(delta, 0.5*diff)
-				p1.position = substract(p1.position, multiply(delta, diff*(p2.radius/(p2.radius+p1.radius))))
-				p2.position = add(p2.position, multiply(delta, diff*(p1.radius/(p2.radius+p1.radius))))
-			}
-		})
-
-		p1.position.x = clamp(0, p1.position.x, b.clientWidth/PIXEL_PER_METER)
-		p1.position.y = clamp(0, p1.position.y, b.clientHeight/PIXEL_PER_METER)
-	})
-}
-
-function draw(particles) {
-	particles.forEach(particle => {
-		c.beginPath();
-		c.arc(
-			toScreen(particle.position.x),
-			toScreen(particle.position.y),
-			10,
-			0,
-			2 * Math.PI);
-		c.fill();
-	})
-}
-
-function update(deltaTimeSecond) {
-	applyForces(particles)
-	verlet(particles, deltaTimeSecond/1000)
-	satisfyConstraints(particles)
-	c.clearRect(0,0,10000,10000)
-	draw(particles)
-	bomb = undefined
-	particles = particles.filter(x => x.radius !== 2)
-}
-
-particles = []
-for (let i = 0; i < 1000; i++) {
-	particles[i] = createParticle(v(
-		Math.random()*b.clientWidth/PIXEL_PER_METER,
-		Math.random()*b.clientHeight/PIXEL_PER_METER
-	), 0.2)
+//PS: Particles
+PS=[]
+for(let i=0;i<1000;i++){
+	PS[i]=MP(v(
+		M.random()*CW()/P,
+		M.random()*CH()/P
+	),0.2)
 }
 window.c.fillStyle="black"
 
-let bomb = undefined
-window.b.addEventListener("click", e => {
-	bomb = toGameSpace(v(e.clientX, e.clientY))
-	console.log(`bombPosition = {x:${bomb.x}, y:${bomb.y})`)
-	particles.push(createParticle(bomb, 2))
+B=undefined
+window.b.addEventListener("click",e=>{
+	B=X(v(e.clientX,e.clientY),1/P)
+	//console.log(`B={x:${B.x},y:${B.y})`)
+	PS.push(MP(B,2))
 })
 
-setInterval(() => update(1000/60, particles), 1000/60)
+//In millisecond
+dt=1000/60/1000
+setInterval(()=>{
+	//Apply force
+	PS.forEach(_=>_.a=v(0,G))
+
+	//Verlet
+	const dt2=dt*dt
+	PS.forEach(particle=>{
+		const newPosition=add(
+			particle.p,
+			add(S(particle.p, particle.oldPosition),X(particle.a,dt2))
+		)
+		particle.oldPosition=particle.p
+		particle.p=newPosition
+	})
+
+	//Update collisions
+	PS.forEach(p1=>{
+		PS.forEach(p2=>{
+			if(p1===p2)return
+			const delta=S(p2.p,p1.p)
+			const deltaLength=L(delta)
+			if(deltaLength>0.001 && deltaLength<(p1.radius+p2.radius)){
+				const diff=((p1.radius+p2.radius)-deltaLength)/deltaLength
+				const dx=X(delta,0.5*diff)
+				p1.p=S(p1.p,X(delta,diff*(p2.radius/(p2.radius+p1.radius))))
+				p2.p=add(p2.p,X(delta,diff*(p1.radius/(p2.radius+p1.radius))))
+			}
+		})
+
+		p1.p.x=C(0,p1.p.x,CW()/P)
+		p1.p.y=C(0,p1.p.y,CH()/P)
+	})
+	c.clearRect(0,0,10000,10000)
+
+	PS.forEach(particle=>{
+		c.beginPath();
+		c.arc(
+			particle.p.x*P,
+			particle.p.y*P,
+			10,
+			0,
+			2*M.PI);
+		c.fill();
+	})
+
+	B=undefined
+	PS=PS.filter(x=>x.radius!==2)
+},dt*1000)
