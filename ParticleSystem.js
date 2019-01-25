@@ -25,13 +25,14 @@ CH=()=>b.clientHeight
 
 //PS: Particles
 PS=[]
-for(let i=0;i<1000;i++){
+F=f=>PS.forEach(f)
+for(let i=0;i<600;i++){
 	PS[i]=MP(v(
 		M.random()*CW()/P,
 		M.random()*CH()/P
 	),0.2)
 }
-window.c.fillStyle="black"
+window.c.fillStyle="#01F7FF"
 
 B=undefined
 window.b.addEventListener("click",e=>{
@@ -44,11 +45,11 @@ window.b.addEventListener("click",e=>{
 dt=1000/60/1000
 setInterval(()=>{
 	//Apply force
-	PS.forEach(_=>_.a=v(0,G))
+	F(_=>_.a=v(0,G))
 
 	//Verlet
 	const dt2=dt*dt
-	PS.forEach(particle=>{
+	F(particle=>{
 		const newPosition=add(
 			particle.p,
 			add(S(particle.p, particle.oldPosition),X(particle.a,dt2))
@@ -58,8 +59,8 @@ setInterval(()=>{
 	})
 
 	//Update collisions
-	PS.forEach(p1=>{
-		PS.forEach(p2=>{
+	F(p1=>{
+		F(p2=>{
 			if(p1===p2)return
 			const delta=S(p2.p,p1.p)
 			const deltaLength=L(delta)
@@ -76,12 +77,12 @@ setInterval(()=>{
 	})
 	c.clearRect(0,0,10000,10000)
 
-	PS.forEach(particle=>{
+	F(particle=>{
 		c.beginPath();
 		c.arc(
 			particle.p.x*P,
 			particle.p.y*P,
-			10,
+			particle.radius*P*2,
 			0,
 			2*M.PI);
 		c.fill();
