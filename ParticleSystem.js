@@ -31,14 +31,10 @@ P=H/900*50
 //PS: Particles
 PS=[]
 F=_=>PS.forEach(_)
-for(let i=0;i<300;i++){
-	PS[i]=MP(v(M.random(),M.random()),0.5)
-}
+for(let i=0;i<300;i++)
+	PS[i]=MP(v(M.random()*W/P,M.random()*H/P),0.5)
 
 a.onclick=e=>PS.push(MP(v(e.clientX/P,e.clientY/P),2))
-//b.addEventListener("click",e=>{
-//	PS.push(MP(v(e.clientX/P,e.clientY/P),2))
-//})
 
 //In millisecond
 dt=1000/60/1000
