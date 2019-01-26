@@ -1,3 +1,17 @@
+console.log("window.innerWidth="+window.innerWidth)
+console.log("window.innerHeight="+window.innerHeight)
+console.log("c.canvas.width="+a.width)
+console.log("c.canvas.height="+a.height)
+console.log(a)
+
+a.style=`
+	width: 100%;
+	height: 100%;
+	object-fit:contain;
+	background: "black";
+`
+
+//
 //v = Vector constructor
 v=(x,y)=>({x:x,y:y})
 M=Math
@@ -20,23 +34,24 @@ X=(vector,scalar)=>v(vector.x*scalar,vector.y*scalar)
 //a: acceleration
 //MP: makeParticle
 MP=(p,r)=>({oldPosition:p,p:p,a:v(0,0),radius:r})
-CW=()=>b.clientWidth
-CH=()=>b.clientHeight
+//ScreenWidth
+SW=()=>c.canvas.width
+//ScreenHeight
+SH=()=>c.canvas.height
+//World2Screen
+//900 is the reference screen height
+W2S=()=>SH()/900*P
 
 //PS: Particles
 PS=[]
 F=f=>PS.forEach(f)
-for(let i=0;i<600;i++){
-	PS[i]=MP(v(
-		M.random()*CW()/P,
-		M.random()*CH()/P
-	),0.2)
+for(let i=0;i<300;i++){
+	PS[i]=MP(v(M.random(),M.random()),0.5)
 }
-window.c.fillStyle="#01F7FF"
 
 B=undefined
-window.b.addEventListener("click",e=>{
-	B=X(v(e.clientX,e.clientY),1/P)
+b.addEventListener("click",e=>{
+	B=v(e.clientX/W2S(),e.clientY/W2S())
 	//console.log(`B={x:${B.x},y:${B.y})`)
 	PS.push(MP(B,2))
 })
@@ -61,7 +76,7 @@ setInterval(()=>{
 	//Update collisions
 	F(p1=>{
 		F(p2=>{
-			if(p1===p2)return
+			if(p1==p2)return
 			const delta=S(p2.p,p1.p)
 			const deltaLength=L(delta)
 			if(deltaLength>0.001 && deltaLength<(p1.radius+p2.radius)){
@@ -72,17 +87,23 @@ setInterval(()=>{
 			}
 		})
 
-		p1.p.x=C(0,p1.p.x,CW()/P)
-		p1.p.y=C(0,p1.p.y,CH()/P)
+		p1.p.x=C(0,p1.p.x,SW()/W2S())
+		p1.p.y=C(0,p1.p.y,SH()/W2S())
 	})
-	c.clearRect(0,0,10000,10000)
+
+	c.fillStyle="black"
+	c.fillRect(0,0,SW(),SH())
+	const gradient=c.createLinearGradient(0,0,0,SH()*0.7)
+	gradient.addColorStop(0,'rgba(0,255,255,0)')
+	gradient.addColorStop(1,'#FF00FF')
+	c.fillStyle=gradient
 
 	F(particle=>{
 		c.beginPath();
 		c.arc(
-			particle.p.x*P,
-			particle.p.y*P,
-			particle.radius*P*2,
+			particle.p.x*W2S(),
+			particle.p.y*W2S(),
+			particle.radius*W2S()*2,
 			0,
 			2*M.PI);
 		c.fill();
