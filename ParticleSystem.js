@@ -24,9 +24,7 @@ W=a.width
 //ScreenHeight
 H=a.height
 //World2Screen
-//900 is the reference screen height
-//50 is the number of pixels per meter on the reference resolution
-P=H/900*50
+P=M.sqrt(W*H/900)
 
 //PS: Particles
 PS=[]
@@ -37,7 +35,8 @@ for(let i=0;i<300;i++)
 a.onclick=e=>PS.push(MP(v(e.clientX/P,e.clientY/P),2))
 
 //In millisecond
-dt=1000/60/1000
+//1000/60/1000
+dt=0.017
 setInterval(()=>{
 	//Apply force
 	//10 is the G force
