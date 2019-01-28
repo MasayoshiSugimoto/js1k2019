@@ -4,9 +4,7 @@ R=M.random
 Q=M.sqrt
 
 //v = Vector constructor
-v=(x,y)=>({x:x,y:y})
-//S: substract
-S=(v1,v2)=>v(v1.x-v2.x,v1.y-v2.y)
+v=(x,y)=>({x,y})
 //A: add
 A=(v1,v2)=>v(v1.x+v2.x,v1.y+v2.y)
 //L: length
@@ -54,7 +52,7 @@ setInterval(()=>{
 	F(particle=>{
 		T=A(
 			particle.p,
-			A(S(particle.p, particle.oldPosition),X(particle.a,D*D))
+			A(A(particle.p,X(particle.oldPosition,-1)),X(particle.a,D*D))
 		)
 		particle.oldPosition=particle.p
 		particle.p=T
@@ -64,12 +62,12 @@ setInterval(()=>{
 	F(p1=>{
 		F(p2=>{
 			if(p1!=p2){
-				let delta=S(p2.p,p1.p)
+				let delta=A(p2.p,X(p1.p,-1))
 				let deltaLength=L(delta)
 				let restLength=p1.radius+p2.radius
-				if(deltaLength>0.001 && deltaLength<restLength){
+				if(deltaLength>0.01 && deltaLength<restLength){
 					let diff=(restLength-deltaLength)/deltaLength
-					p1.p=S(p1.p,X(delta,diff*(p2.radius/restLength)))
+					p1.p=A(p1.p,X(delta,-diff*(p2.radius/restLength)))
 					p2.p=A(p2.p,X(delta,diff*(p1.radius/restLength)))
 				}
 			}
@@ -84,14 +82,14 @@ setInterval(()=>{
 	c.fillStyle=G
 
 	F(particle=>{
-		c.beginPath();
+		c.beginPath()
 		c.arc(
 			particle.p.x*P,
 			particle.p.y*P,
 			particle.radius*P*2,
 			0,
-			2*M.PI);
-		c.fill();
+			2*M.PI)
+		c.fill()
 	})
 
 	PS[0]=PS[1]
