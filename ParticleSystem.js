@@ -29,10 +29,15 @@ P=M.sqrt(W*H/900)
 //PS: Particles
 PS=[]
 F=_=>PS.forEach(_)
-for(let i=0;i<300;i++)
+for(let i=1;i<300;i++)
 	PS[i]=MP(v(M.random()*W/P,M.random()*H/P),0.5)
 
-a.onclick=e=>PS.push(MP(v(e.clientX/P,e.clientY/P),2))
+a.onclick=e=>PS[0]=MP(v(e.clientX/P,e.clientY/P),2)
+
+//Gradient
+G=c.createLinearGradient(0,0,0,H*0.7)
+G.addColorStop(0,'rgba(0,255,255,0)')
+G.addColorStop(1,'#FF00FF')
 
 //In millisecond
 //1000/60/1000
@@ -45,12 +50,12 @@ setInterval(()=>{
 	//Verlet
 	let dt2=dt*dt
 	F(particle=>{
-		let newPosition=A(
+		T=A(
 			particle.p,
 			A(S(particle.p, particle.oldPosition),X(particle.a,dt2))
 		)
 		particle.oldPosition=particle.p
-		particle.p=newPosition
+		particle.p=T
 	})
 
 	//Update collisions
@@ -74,10 +79,7 @@ setInterval(()=>{
 
 	c.fillStyle="black"
 	c.fillRect(0,0,W,H)
-	let gradient=c.createLinearGradient(0,0,0,H*0.7)
-	gradient.addColorStop(0,'rgba(0,255,255,0)')
-	gradient.addColorStop(1,'#FF00FF')
-	c.fillStyle=gradient
+	c.fillStyle=G
 
 	F(particle=>{
 		c.beginPath();
@@ -90,5 +92,5 @@ setInterval(()=>{
 		c.fill();
 	})
 
-	PS=PS.filter(_=>_.radius!==2)
+	PS[0]=PS[1]
 },dt*1000)
