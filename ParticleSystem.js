@@ -1,5 +1,7 @@
 a.style=`width:100%;height:100%;object-fit:none`
 M=Math
+R=M.random
+Q=M.sqrt
 
 //v = Vector constructor
 v=(x,y)=>({x:x,y:y})
@@ -8,7 +10,7 @@ S=(v1,v2)=>v(v1.x-v2.x,v1.y-v2.y)
 //A: add
 A=(v1,v2)=>v(v1.x+v2.x,v1.y+v2.y)
 //L: length
-L=v1=>M.sqrt(v1.x*v1.x+v1.y*v1.y)
+L=v1=>Q(v1.x*v1.x+v1.y*v1.y)
 //C: clamp
 C=(min,value,max)=>M.min(max,M.max(value,min))
 //X: multiply
@@ -24,35 +26,35 @@ W=a.width
 //ScreenHeight
 H=a.height
 //World2Screen
-P=M.sqrt(W*H/900)
+P=Q(W*H/900)
 
 //PS: Particles
 PS=[]
 F=_=>PS.forEach(_)
-for(let i=1;i<300;i++)
-	PS[i]=MP(v(M.random()*W/P,M.random()*H/P),0.5)
+for(i=1;i<300;i++)
+	PS[i]=MP(v(R()*W/P,R()*H/P),0.5)
 
 a.onclick=e=>PS[0]=MP(v(e.clientX/P,e.clientY/P),2)
 
 //Gradient
 G=c.createLinearGradient(0,0,0,H*0.7)
-G.addColorStop(0,'rgba(0,255,255,0)')
-G.addColorStop(1,'#FF00FF')
+T=G.addColorStop.bind(G)
+T(0,'rgba(0,255,255,0)')
+T(1,'#FF00FF')
 
-//In millisecond
+//dt In millisecond
 //1000/60/1000
-dt=0.017
+D=.017
 setInterval(()=>{
 	//Apply force
 	//10 is the G force
 	F(_=>_.a=v(0,10))
 
 	//Verlet
-	let dt2=dt*dt
 	F(particle=>{
 		T=A(
 			particle.p,
-			A(S(particle.p, particle.oldPosition),X(particle.a,dt2))
+			A(S(particle.p, particle.oldPosition),X(particle.a,D*D))
 		)
 		particle.oldPosition=particle.p
 		particle.p=T
@@ -93,4 +95,4 @@ setInterval(()=>{
 	})
 
 	PS[0]=PS[1]
-},dt*1000)
+},D*1000)
