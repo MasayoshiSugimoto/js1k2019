@@ -7,10 +7,8 @@ Q=M.sqrt
 v=(x,y)=>({x,y})
 //A: add
 A=(v1,v2)=>v(v1.x+v2.x,v1.y+v2.y)
-//L: length
-L=v1=>Q(v1.x*v1.x+v1.y*v1.y)
 //C: clamp
-C=(min,value,max)=>M.min(max,M.max(value,min))
+C=(value,max)=>M.min(max,M.max(value,0))
 //X: multiply
 X=(vector,scalar)=>v(vector.x*scalar,vector.y*scalar)
 
@@ -40,6 +38,8 @@ T=G.addColorStop.bind(G)
 T(0,'rgba(0,255,255,0)')
 T(1,'#FF00FF')
 
+S=_=>c.fillStyle=_
+
 //dt In millisecond
 //1000/60/1000
 D=.017
@@ -63,7 +63,7 @@ setInterval(()=>{
 		F(p2=>{
 			if(p1!=p2){
 				let delta=A(p2.p,X(p1.p,-1))
-				let deltaLength=L(delta)
+				let deltaLength=Q(delta.x*delta.x+delta.y*delta.y)
 				let restLength=p1.radius+p2.radius
 				if(deltaLength>0.01 && deltaLength<restLength){
 					let diff=(restLength-deltaLength)/deltaLength
@@ -73,13 +73,13 @@ setInterval(()=>{
 			}
 		})
 
-		p1.p.x=C(0,p1.p.x,W/P)
-		p1.p.y=C(0,p1.p.y,H/P)
+		p1.p.x=C(p1.p.x,W/P)
+		p1.p.y=C(p1.p.y,H/P)
 	})
 
-	c.fillStyle="black"
+	S("black")
 	c.fillRect(0,0,W,H)
-	c.fillStyle=G
+	S(G)
 
 	F(particle=>{
 		c.beginPath()
