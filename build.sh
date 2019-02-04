@@ -6,7 +6,7 @@ node node_modules/uglify-es/bin/uglifyjs\
 	--mangle-props\
 	-- ParticleSystem.js > ParticleSystem.out.js
 
-cat js1k.html\
+cat js1k2019.shim.html\
 	| sed '
 		/<!\[CDATA\[demo\]\]>/ {
 			r ParticleSystem.out.js
